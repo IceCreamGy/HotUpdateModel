@@ -33,12 +33,12 @@ public class UpdateResourcesFileFromServer : MonoBehaviour
 	/// <summary>
 	/// 检查更新
 	/// </summary>
-	/// <param name="url"> 服务器下载URL </param>
+	/// <param name="serverURL"> 服务器下载URL </param>
 	/// <returns></returns>
-	IEnumerator CheckAndDownload(string url)
+	IEnumerator CheckAndDownload(string serverURL)
 	{
 		//参数检查
-		if (string.IsNullOrEmpty(url))
+		if (string.IsNullOrEmpty(serverURL))
 		{
 			Debug.LogError("服务器路径错误");
 			yield break;
@@ -74,36 +74,72 @@ public class UpdateResourcesFileFromServer : MonoBehaviour
 					continue;
 				}
 				string[] fileAndMd5 = lines[i].Split('|');      //按符号截取
-				string serverFileName = fileAndMd5[0].Trim();       //服务器端的文件名（路径）
+				string strServerFileName = fileAndMd5[0].Trim();       //服务器端的文件名（路径）
 				string serverMD5 = fileAndMd5[1].Trim();        //服务器端的MD5码
 
-				string localFile = _DownloadPath + "/" + serverFileName;        //得到本地的这个文件
+				string strLocalFile = _DownloadPath + "/" + strServerFileName;        //得到本地的这个文件
 
 				//2>		根据“校验文件”对比，哪些是变化的，哪些是新加的，整理到集合中
 
-				if (!File.Exists(localFile))
+				if (!File.Exists(strLocalFile))
 				{
 					//从服务器下载
-					string dir = Path.GetDirectoryName(localFile);
+					string dir = Path.GetDirectoryName(strLocalFile);
 					if (!string.IsNullOrEmpty(dir))
 					{
 						Directory.CreateDirectory(dir);
 					}
 					//todo 通过www下载并写入本地
+					StartCoroutine(DownFile(serverURL + "/" + strServerFileName, strLocalFile));
 				}
 				else
 				{
 					//todo  进行MD5码比对
+					string localMd5 = Helps.GetMD5(strLocalFile);
+
+					if (!localMd5.Equals(serverMD5))
+					{
+						File.Delete(strLocalFile);
+						//todo 通过www下载并写入本地
+						StartCoroutine(DownFile(serverURL + "/" + strServerFileName, strLocalFile));
+						Debug.Log("更新了文件：" + strLocalFile);
+					}
 				}
 
 				//3>		根据整理出需要更新的文件，下载资源
 			}
+
+			Debug.Log("UpdateResourcesFileFromServer /CheckAndDownload/ 校验完成");
 		}
 
+		yield return new WaitForEndOfFrame();
 
-		yield return null;
+		//向下广播更新完成，启动游戏的主逻辑
+		BroadcastMessage(ABDefine.ReceiveInfoStartRuning, SendMessageOptions.DontRequireReceiver);
+	}//CheckAndDownload_End
+
+	/// <summary>
+	/// 通过WebRequest下载文件，写入本地路径
+	/// </summary>
+	/// <param name="serverURL"></param>
+	/// <param name="localFilePath"></param>
+	/// <returns></returns>
+	IEnumerator DownFile(string serverURL, string localFilePath)
+	{
+		UnityWebRequest WebRequest = UnityWebRequest.Get(serverURL);
+		yield return WebRequest.SendWebRequest();
+
+		if (WebRequest.error != null)
+		{
+			Debug.Log(WebRequest.error);
+		}
+		else
+		{
+			File.WriteAllBytes(localFilePath, WebRequest.downloadHandler.data);
+		}
 	}
-}
+
+}//Class_End
 
 
 /*
