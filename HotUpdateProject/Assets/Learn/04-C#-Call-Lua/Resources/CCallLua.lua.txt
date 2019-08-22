@@ -1,0 +1,17 @@
+﻿name="gaoyuan"
+
+ship={}
+ship.name="hood"
+ship.year=2019
+ship.damage=3158
+ship.level=10
+ship.canAttack=true
+
+function ship.Fire(this, value)	    --This表示此table
+	print("ship fire function  "..value)
+end
+
+function ship.levelUp()
+    ship.level=ship.level+7
+	return    ship.level
+end
