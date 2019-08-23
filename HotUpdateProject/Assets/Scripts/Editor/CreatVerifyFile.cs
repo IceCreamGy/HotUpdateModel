@@ -12,15 +12,11 @@ public class CreatVerifyFile : MonoBehaviour
 		Debug.Log("生成校验文件");
 
 		//定义局部变量
-		string abOutPath = string.Empty;                            //AssetBundle的输出路径 
 		string VeriyFilesOutPath = string.Empty;                //校验文件的路径
 		List<string> fileList = new List<string>();             //储存所有合法文件的路径信息
 
 		//定义校验文件的输出路径
-		string streamingPath = Application.streamingAssetsPath;
-		abOutPath = streamingPath + "/" + PathTools.LuaPath_Publish;
-		Debug.Log("abOutPath " + abOutPath);
-		VeriyFilesOutPath = abOutPath + ABDefine.VeriyFilesName;
+		VeriyFilesOutPath = Application.streamingAssetsPath + ABDefine.VeriyFilesName;
 
 		//如果项目已有校验文件，则进行覆盖
 		if (File.Exists(VeriyFilesOutPath))
@@ -29,7 +25,7 @@ public class CreatVerifyFile : MonoBehaviour
 		}
 
 		//遍历当前文件夹（校验文件的输出路径）的所有文件，生成MD5编码
-		ListFile(new DirectoryInfo(abOutPath), ref fileList);
+		ListFile(new DirectoryInfo(Application.streamingAssetsPath), ref fileList);
 
 		//把 "文件路径" 与 "对应的MD5码" ，写入校验文件
 		WriteVerifyFile(VeriyFilesOutPath, fileList);

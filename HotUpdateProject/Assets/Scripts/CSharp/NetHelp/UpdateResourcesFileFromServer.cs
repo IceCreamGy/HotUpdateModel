@@ -144,8 +144,8 @@ public class UpdateResourcesFileFromServer : MonoBehaviour
 
 /*
 --------------------------------------------------------------------------------
-层级设计
-UpdateControl （是否跳过更新？向下通知）
-CSharpStart
-LuaStart
+其实这样的做法最安全， 就是所有的资源必须都要跟服务器一致才行，这样防止了客户端被修改的危险。
+性能的话，再做取舍。
+另外，所有正常情况下lua要加密，算法自己决定
+
 */
