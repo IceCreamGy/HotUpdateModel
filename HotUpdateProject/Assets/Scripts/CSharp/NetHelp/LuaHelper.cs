@@ -72,7 +72,7 @@ public class LuaHelper : MonoBehaviour
 	}   //ProcessDIR_End
 
 	//执行Lua代码
-	public void DoString(byte[] chunk, string chunkName = "chunk", LuaTable env = null)
+	public void DoString(string chunk, string chunkName = "chunk", LuaTable env = null)
 	{
 		_luaEnv.DoString(chunk, chunkName, env);
 	}
